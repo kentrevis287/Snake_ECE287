@@ -9,6 +9,13 @@ For our ECE 287 Project, we decided to implement the famous game "Snake" in Veri
 ## Design
 #### Summary
 
+To complete this project, we used:
+  * Quartus II
+  * Altera DE2-115 board, power cable, and USB cable
+  * PS/2 Keyboard
+  * VGA cable and monitor
 
+
+  
 
 Credits: Ken DeRose and Trevis Graham 
