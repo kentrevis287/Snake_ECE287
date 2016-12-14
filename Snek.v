@@ -17,7 +17,7 @@ module Snek(start, master_clk, KB_clk, data, DAC_clk, VGA_R, VGA_G, VGA_B, VGA_W
 	wire W;
 	wire [4:0] direction;
 	wire lethal, nonLethal;
-	reg bad_collision, good_collision, game_over, initpos, ready, up, left, right;
+	reg bad_collision, good_collision, game_over, initpos, ready, up, left, right, win;
 	reg down = 1;
 	reg apple_inX, apple_inY, apple, border, found, found2, scoreboard; //---------------------------------------------------------------Added border
 	integer appleCount, count1, count2, count3, count4, count5, count6, level, score, slither;
@@ -291,16 +291,24 @@ module Snek(start, master_clk, KB_clk, data, DAC_clk, VGA_R, VGA_G, VGA_B, VGA_W
 										score = 0;
 										end
 										else good_collision=0;
-	always @(posedge VGA_clk) if(lethal && snakeHead) bad_collision<=1;
-										else bad_collision=0;
-	always @(posedge VGA_clk) if(bad_collision) game_over<=1;
-										else if(~start) game_over=0;
 										
 	
+always@(posedge VGA_clk)
+	if (score >= 62)
+		win <= 1;
+	else
+		win <= 0;
+	
+	
+	always @(posedge VGA_clk) if(lethal && snakeHead) bad_collision<=1;
+										else bad_collision=0;
+	always @(posedge VGA_clk) if(bad_collision || win) game_over<=1;
+										else if(~start) game_over=0;
+	
 									
-	assign R = (displayArea && ((scoreboard && (~snakeBody && ~snakeBody2))|| apple || game_over));
-	assign G = (displayArea && (((scoreboard && (~apple && ~snakeBody2)) || snakeHead || snakeBody) && ~game_over));
-	assign B = (displayArea && (((scoreboard && (~apple && ~snakeBody)) || border || snakeBody2) && ~game_over) );//---------------------------------------------------------------Added border
+	assign R = (displayArea && ~win && ((scoreboard && (~snakeBody && ~snakeBody2))|| apple || game_over));
+	assign G = (displayArea && ((((scoreboard && (~apple && ~snakeBody2)) || snakeHead || snakeBody) && ~game_over) || (game_over && win)));
+	assign B = (displayArea && ~win && (((scoreboard && (~apple && ~snakeBody)) || border || snakeBody2) && ~game_over) );//---------------------------------------------------------------Added border
 	
 	always@(posedge VGA_clk)
 	begin
