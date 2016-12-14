@@ -24,4 +24,16 @@ Features include:
  	* An enemy snake that appears after the player eats their first apple. The snake grows bigger at the same rate of the player snake, 4 blocks at a time. 
  	* A score counter, which are tally marks that increment by 1. Once you reach a multiple of five, the tally is represented as a big block.
 
+#### Challenges
+
+#### Bugs/Glitches
+
+1. The very first time the player runs the game, the score tally marks will disappear. 
+2. There are times where the keyboard no longer accepts input and the player would have to program the board again. 
+3. Very few times, if a player lost on the bottom border, the game would keep the snake in the border when you reset . You simply have to reset another time. This happens because before resetting, the snake is in the position it lost in for a split second. 
+4. At times, the apple would move to another part of the screen. 
+
+## Conclusion
+
+
 Credits: Ken DeRose and Trevis Graham 
