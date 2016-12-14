@@ -15,7 +15,13 @@ To complete this project, we used:
   * PS/2 Keyboard
   * VGA cable and monitor
 
-
-  
+Features include:
+  * A moving Snake that eats "apples" to grow 4 blocks. 
+  * A win state (when your score reaches 16).
+  * A psuedo-lose state (when the player's snake hits the border or enemy snake).
+  * Raised difficulty:
+  	* After eating a fourth apple, the apples will begin to move at a speed relative to the size of the snake. As the snake gets bigger, the apple moves faster. 
+ 	* An enemy snake that appears after the player eats their first apple. The snake grows bigger at the same rate of the player snake, 4 blocks at a time. 
+ 	* A score counter, which are tally marks that increment by 1. Once you reach a multiple of five, the tally is represented as a big block.
 
 Credits: Ken DeRose and Trevis Graham 
