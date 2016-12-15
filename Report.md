@@ -4,7 +4,7 @@ For our ECE 287 Project, we decided to implement the famous game "Snake" in Veri
 
 ### Background
 
-"Snake" is a video game where a player controls a snake that moves around to eat objects in order to become bigger. As the snake gets bigger, the harder it becomes to control that snake. The player loses if the snake hits itself, or a border. The player wins if it eats all of the objects. 
+"Snake" is a video game where a player controls a snake that moves around to eat apples in order to become bigger. As the snake gets bigger, the less room there is to maneuver. The player loses if the snake hits itself or a border. The player wins if it eats all of the appless. 
 
 ## Design
 #### Summary
@@ -18,10 +18,10 @@ To complete this project, we used:
 Features include:
   * A moving Snake that eats "apples" to grow 4 blocks. 
   * A win state (when your score reaches 16).
-  * A psuedo-lose state (when the player's snake hits the border or enemy snake).
+  * A lose state (when the player's snake hits the border or enemy snake).
   * Raised difficulty:
   	* After eating a fourth apple, the apples will begin to move at a speed relative to the size of the snake. As the snake gets bigger, the apple moves faster. 
- 	* An enemy snake that appears after the player eats their first apple. The snake grows bigger at the same rate of the player snake, 4 blocks at a time. 
+ 	* An enemy snake appears after the player eats their first apple. The snake grows bigger at the same rate of the player snake, 4 blocks at a time. 
  	* A score counter, which are tally marks that increment by 1. Once you reach a multiple of five, the tally is represented as a big block.
 
 #### Implementation
@@ -425,13 +425,13 @@ Here, we basically coded a case statement that draws a tally mark in white (whic
 
 #### Challenges
 
-The biggest challenge that we ran into was understanding the base code of the game, which was essentially what took the longest. Once we understood that, we had to fix the code because when we first ran the base code, the game would not leave the game-over screen. After fixing that, we had to implement our own logic, which is what took the rest of our time. That was a challenge in itself, because we had to conform our ideas to that of the base code, that way they matched. This was really at the beginning, because we soon got used to the base code. There was also the fact that when something went wrong, we had to do trial-and-error analysis to figure out what was wrong. We couldn't detect a certain spot that went wrong, unless we were changing only one line of code. 
+The biggest challenge that we ran into was understanding the base code of the game, which was essentially what took the longest. Once we understood that, we had to fix the code because when we first ran the base code, the game would not leave the game-over screen. After fixing that, we had to implement our own logic, which is what took the rest of our time. This was a challenge in itself, because we had to conform our ideas to the base code, so that they matched. There was also the fact that when something went wrong, we had to do trial-and-error analysis to figure out what was wrong. We couldn't detect a certain spot that went wrong, unless we were changing only one line of code. 
 
 #### Bugs/Glitches
 
-1. The very first time the player runs the game, the score tally marks will disappear. 
+1. The very first time the player runs the game, the score tally marks will sometimes disappear. 
 2. There are times where the keyboard no longer accepts input and the player would have to program the board again. 
-3. Very few times, if a player lost on the bottom border, the game would keep the snake in the border when you reset . You simply have to reset another time. This happens because before resetting, the snake is in the position it lost in for a split second. 
+3. Very few times, if a player lost on the bottom border, the game would keep the snake in the border when you reset . You simply have to reset another time. 
 4. At times, the apple would move to another part of the screen. This wasn't game-breaking because the apple wouldn't move like that more than once, but it still was a glitch. 
 
 ## Conclusion
