@@ -179,8 +179,250 @@ module randomGrid(VGA_clk, rand_X, rand_Y, direction);
 			rand_Y <= (pointY * 10);
 	end
 endmodule
- ```
- 
+```
+
+Above is the module that generates where to place the apple. Based on your direction, we created counters in the x and y directions that would add random values to them. Then, those values would get multiplied by ten, so the apple would appear on the screen. We implemented a check so that if it was greater than given values, it would set itself to a desired value. 
+
+```verilog
+		if (size > 16)
+		begin
+			count3 <= count3 + 1;
+			if (count3 >= 50000000 - (level * 270000))
+			begin
+				move <= rand_X/10;
+				case(move)
+					2'b00:
+					begin
+						if (appleX < 620)
+							appleX <= appleX + 10;
+					end
+					2'b01:
+					begin
+						if (appleX > 20)
+							appleX <= appleX - 10;
+					end
+					2'b10:
+					begin
+						if (appleY < 460)
+							appleY <= appleY + 10;
+					end
+					2'b11:
+					begin
+						if (appleY > 20)
+							appleY <= appleY - 10;
+					end
+				endcase
+				count3 <= 0;
+			end
+		end
+	end
+```
+Above is the piece of code that ramps up the difficulty once the size of the player snake becomes greater than sixteen. Based on the random value of X divided by 10, the apple will move in a random direction up, down, left, or right. There are also checks so the apple is never outside of the border.
+
+```verilog
+	assign lethal = border || snakeBody || snakeBody2;
+	assign nonLethal = apple;
+	always @(posedge VGA_clk) if(nonLethal && snakeHead) begin 
+																		good_collision<=1;
+																		size = size+1;
+																		score <= score + 1;
+																		end
+									else if(~start)
+										begin
+										size = 1;	
+										score = 0;
+										end
+									else good_collision=0;
+										
+	
+always@(posedge VGA_clk)
+	if (score >= 62)
+		win <= 1;
+	else
+		win <= 0;
+	
+	
+	always @(posedge VGA_clk) if(lethal && snakeHead) bad_collision<=1;
+										else bad_collision=0;
+	always @(posedge VGA_clk) if(bad_collision || win) game_over<=1;
+										else if(~start) game_over=0;
+	
+									
+	assign R = (displayArea && ~win && ((scoreboard && (~snakeBody && ~snakeBody2))|| apple || game_over));
+	assign G = (displayArea && ((((scoreboard && (~apple && ~snakeBody2)) || snakeHead || snakeBody) && ~game_over) || (game_over && win)));
+	assign B = (displayArea && ~win && (((scoreboard && (~apple && ~snakeBody)) || border || snakeBody2) && ~game_over) );//---------------------------------------------------------------Added border
+	
+	always@(posedge VGA_clk)
+	begin
+		VGA_R = {8{R}};
+		VGA_G = {8{G}};
+		VGA_B = {8{B}};
+	end 
+
+endmodule
+```
+
+Above is most of where we have the rest of our apple logic. We define the apple as a non-lethal collision. Then we say that when the snake head hits the apple, it is defined as a good collision and adds to the score. Once you reach 16 apples, or 62 blocks of snake, then you win. We also assigned the color red to the apple. 
+
+##### Player Snake and Enemy Snake Mechanics
+
+```verilog
+always@(posedge VGA_clk)
+	begin 
+		count6 <= count6 + 1;
+		
+		if (count6 >= 50000000)
+		begin
+			if(down)
+			begin
+				slither <= 0;
+				count6 <= 0;
+				right <= 1;
+				down <= 0;
+			end
+			else if(right)
+			begin
+				slither <= 3;
+				count6 <= 0;
+				up <= 1;
+				right <= 0;
+			end
+		end
+		if (count6 >= 25000000)
+		begin
+			if(up)
+			begin
+				slither <= 2;
+				count6 <= 0;
+				left <= 1;
+				up <= 0;
+			end
+			else if(left)
+			begin
+				slither <= 1;
+				count6 <= 0;
+				down <= 1;
+				left <= 0;
+			end
+		end
+				
+	end
+	
+	always@(posedge update)
+	begin
+		if(start)
+		begin
+			for(count1 = 127; count1 > 0; count1 = count1 - 1)
+				begin
+					if(start && ~ready)
+					begin
+						snakeX[0] = 300;
+						snakeY[0] = 250;
+						snake2X[0] = 100;
+						snake2Y[0] = 80;
+						ready = 1;
+					end
+					if(count1 <= size - 1)
+					begin
+						snakeX[count1] = snakeX[count1 - 1];
+						snakeY[count1] = snakeY[count1 - 1];
+					end
+					if(count1 <= size-1)
+					begin
+						snake2X[count1] = snake2X[count1 - 1];
+						snake2Y[count1] = snake2Y[count1 - 1];
+					end
+				end
+			case(direction)
+				5'b00010: snakeY[0] <= (snakeY[0] - 10);
+				5'b00100: snakeX[0] <= (snakeX[0] - 10);
+				5'b01000: snakeY[0] <= (snakeY[0] + 10);
+				5'b10000: snakeX[0] <= (snakeX[0] + 10);
+				endcase
+			case(slither)
+				2'b00: snake2Y[0] <= (snake2Y[0] - 10);
+				2'b01: snake2X[0] <= (snake2X[0] - 10);
+				2'b10: snake2Y[0] <= (snake2Y[0] + 10);
+				2'b11: snake2X[0] <= (snake2X[0] + 10);
+				default: snake2Y[0] <= (snake2Y[0] + 10);
+			endcase
+		end
+		else if(~start)
+		begin
+			ready = 0;
+			for(count4 = 1; count4 < 128; count4 = count4+1)
+				begin
+				snakeX[count4] = 700;
+				snakeY[count4] = 500;
+				snake2X[count4] = 710;
+				snake2Y[count4] = 510;
+				end	
+		end
+	end
+	
+	always@(posedge VGA_clk)
+	begin
+		found = 0;
+		
+		for(count2 = 1; count2 < size; count2 = count2 + 1)
+		begin
+			if(~found)
+			begin				
+				snakeBody = ((xCount > snakeX[count2] && xCount < snakeX[count2]+10) && (yCount > snakeY[count2] && yCount < snakeY[count2]+10));
+				found = snakeBody;
+			end
+		end
+	end
+	
+	always@(posedge VGA_clk)
+	begin
+		found2 = 0;
+			
+		for(count2 = 1; count2 < size; count2 = count2 + 1)
+		begin
+			if(~found2)
+			begin				
+				snakeBody2 = ((xCount > snake2X[count2] && xCount < snake2X[count2]+10) && (yCount > snake2Y[count2] && yCount < snake2Y[count2]+10));
+				found2 = snakeBody2;
+			end
+		end
+	end
+```
+
+Above is most of our snake logic. Here we create the snake head and have it move 10 units in whatever direction is inputted by the user. We used to have a bug in our code that would randomly spawn the snake head in the border sometimes, which is an automatic game over, so we overcame that by programming so the snake head would always start in the middle. We also explained earlier that when the snake head hits the apple, it is a good collision and the snake grows by 4 body parts. Once the snake hits itself or hits the border, it is game over. We gave the enemy snake its own direction command called slither. It basically mirrors the direction code that we gave our snake, but these are predetermined values, so the enemy can be thought of as an AI that moves randomly. The enemy also grows every time the player achieves a good collision. In last portion of code from the section Apple Mechanics, we assign green to the player snake and blue to the enemy snake. 
+
+##### Other features not explained
+
+* The snake is updated at 28 Hz on the VGA.
+* The game over screen is a blank red screen.
+* The win screen is a blank green screen. 
+* To reset, press the first reset button, KEY0.
+* Without the win state, the maximum snake length is 128 total parts, 1 head and 127 body parts. 
+* With no key presses, the snake will continue moving in the last direction that was pressed. 
+* The 127 body parts are actually hidden behind the porch. Once the apple is eaten, 4 parts are revealed. 
+* The score counter
+```verilog
+case(score)
+			0: scoreboard <= 0;
+			4: scoreboard <= (xCount >= 30) && (xCount < 40) && (yCount >= 440) && (yCount < 460);
+			8: scoreboard <= (((xCount >= 30) && (xCount < 40)) || ((xCount >= 50) && (xCount < 60))) && (yCount >= 440) && (yCount < 460);
+			12: scoreboard <= (((xCount >= 30) && (xCount < 40)) || ((xCount >= 50) && (xCount < 60) || ((xCount >= 70) && (xCount < 80)))) && (yCount >= 440) && (yCount < 460);
+			16: scoreboard <= (((xCount >= 30) && (xCount < 40)) || (xCount >= 50) && (xCount < 60) || ((xCount >= 70) && (xCount < 80)) || ((xCount >= 90) && (xCount < 100))) && (yCount >= 440) && (yCount < 460);
+			20: scoreboard <= ((xCount >= 30) && (xCount < 80)) && (yCount >= 440) && (yCount < 460);
+			24: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 100))) && (yCount >= 440) && (yCount < 460);
+			28: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 100)) || ((xCount >= 110) && (xCount < 120))) && (yCount >= 440) && (yCount < 460);
+			32: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 100)) || ((xCount >= 110) && (xCount < 120)) || ((xCount >= 130) && (xCount < 140))) && (yCount >= 440) && (yCount < 460);
+			36: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 100)) || ((xCount >= 110) && (xCount < 120)) || ((xCount >= 130) && (xCount < 140)) || ((xCount >= 150) && (xCount < 160))) && (yCount >= 440) && (yCount < 460);
+			40: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 140))) && (yCount >= 440) && (yCount < 460);
+			44: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 140)) || ((xCount >= 150) && (xCount < 160))) && (yCount >= 440) && (yCount < 460);
+			48: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 140)) || ((xCount >= 150) && (xCount < 160)) || ((xCount >= 170) && (xCount < 180))) && (yCount >= 440) && (yCount < 460);
+			52: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 140)) || ((xCount >= 150) && (xCount < 160)) || ((xCount >= 170) && (xCount < 180)) || ((xCount >= 190) && (xCount < 200))) && (yCount >= 440) && (yCount < 460);
+			56: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 140)) || ((xCount >= 150) && (xCount < 160)) || ((xCount >= 170) && (xCount < 180)) || ((xCount >= 190) && (xCount < 200)) || ((xCount >= 210) && (xCount < 220))) && (yCount >= 440) && (yCount < 460);
+			60: scoreboard <= (((xCount >= 30) && (xCount < 80)) || ((xCount >= 90) && (xCount < 140)) || ((xCount >= 150) && (xCount < 200))) && (yCount >= 440) && (yCount < 460);
+		endcase
+```
+Here, we basically coded a case statement that draws a tally mark in white (which is contained in the assigning colors code in the section Apple Mechanics). The score can be thought of the amount of body parts added to the snake, witch is why we increment by 4. 
+
 #### Challenges
 
 The biggest challenge that we ran into was understanding the base code of the game, which was essentially what took the longest. Once we understood that, we had to fix the code because when we first ran the base code, the game would not leave the game-over screen. After fixing that, we had to implement our own logic, which is what took the rest of our time. That was a challenge in itself, because we had to conform our ideas to that of the base code, that way they matched. This was really at the beginning, because we soon got used to the base code. There was also the fact that when something went wrong, we had to do trial-and-error analysis to figure out what was wrong. We couldn't detect a certain spot that went wrong, unless we were changing only one line of code. 
